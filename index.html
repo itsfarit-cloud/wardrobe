@@ -3,7 +3,7 @@
 {
   "name": "Гардероб Машеньки",
   "schemaVersion": 1,
-  "description": "Подарочная версия конструктора образов: выбери вещь — останется только то, что с ней сочетается. 31 вещь, тёплое оформление, приветствие для Машеньки.",
+  "description": "Подарочная версия конструктора образов: выбери вещь — останется только то, что с ней сочетается. 31 вещь, минималистичное ч/б оформление, приветствие и комплименты для Машеньки.",
   "mcpTools": [],
   "mcpServerNames": []
 }
@@ -16,7 +16,7 @@
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Marck+Script&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Marck+Script&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #ffffff;
@@ -254,6 +254,8 @@
     cursor: pointer;
     transition: transform 0.15s ease, border-color 0.12s ease, box-shadow 0.12s ease, opacity 0.22s ease;
     position: relative;
+    display: flex;
+    flex-direction: column;
   }
   .item-card:hover {
     transform: translateY(-2px);
@@ -283,15 +285,15 @@
   }
   .item-img {
     aspect-ratio: 3/4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
+    flex: none;
+    position: relative;
     background: #fff;
   }
   .item-img img {
-    max-width: 100%;
-    max-height: 100%;
+    position: absolute;
+    inset: 8px;
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
     object-fit: contain;
   }
   .item-label {
@@ -301,6 +303,11 @@
     border-top: 1px solid var(--line);
     text-align: center;
     line-height: 1.3;
+    flex: 1;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .link-badge, .sel-badge {
     position: absolute;
@@ -399,86 +406,33 @@
 </style>
 
 <style id="masha-theme">
-  :root {
-    --bg: #ffffff;
-    --ink: #241a1b;
-    --ink-soft: #9a7176;
-    --line: #f0d9dc;
-    --card-bg: #ffffff;
-    --accent: #b01e30;
-    --edit-bg: #fdf0f2;
-    --edit-line: #f0c9d0;
-  }
-  .edit-banner { color: #8a3644; }
-  .edit-banner b { color: #6d1f2e; }
-  .item-card.editing-target { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  body {
-    background-color: var(--bg);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='none' stroke='%23b01e30' stroke-opacity='0.05' stroke-width='1.4'%3E%3Cpath d='M70 18c8 12 8 24 0 34-8-10-8-22 0-34z'/%3E%3Cpath d='M70 122c-8-12-8-24 0-34 8 10 8 22 0 34z'/%3E%3Cpath d='M18 70c12-8 24-8 34 0-10 8-22 8-34 0z'/%3E%3Cpath d='M122 70c-12 8-24 8-34 0 10-8 22-8 34 0z'/%3E%3Ccircle cx='70' cy='70' r='5'/%3E%3Ccircle cx='0' cy='0' r='9'/%3E%3Ccircle cx='140' cy='0' r='9'/%3E%3Ccircle cx='0' cy='140' r='9'/%3E%3Ccircle cx='140' cy='140' r='9'/%3E%3C/g%3E%3C/svg%3E");
-  }
-  header.hero { border-bottom: 3px double var(--line); }
-  header.hero h1 { font-family: 'Playfair Display', Georgia, serif; letter-spacing: 0; }
-  .mode-switch { background: #fff; }
-  .mode-switch button.active,
-  .filters button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .filters button { background: var(--card-bg); }
-  .filters button:hover { border-color: var(--accent); color: var(--accent); }
-  .export-actions button.primary { background: var(--accent); border-color: var(--accent); }
-  .ob-piece .rm { background: var(--accent); }
-  .sel-badge { background: var(--accent); }
-  .outfit-bar { box-shadow: 0 10px 26px rgba(176,30,48,0.06); }
-  .ob-head .ob-title { font-family: 'Playfair Display', Georgia, serif; font-size: 16px; }
-  .ob-head button:hover { border-color: var(--accent); color: var(--accent); }
-  .cat-head { color: #c9909a; }
-  .cat-head b { background: #faeaec; border-color: var(--line); color: #9a6570; }
-  .item-card { border-radius: 14px; }
-  .item-card:hover { box-shadow: 0 8px 20px rgba(176,30,48,0.12); border-color: #e6b6bd; }
-  .picker-title { font-family: 'Playfair Display', Georgia, serif; font-size: 17px; }
-  .picker-title .sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; }
-  footer { border-top: 3px double var(--line); }
-
   .masha-hero {
-    position: relative;
     text-align: center;
-    background: var(--card-bg);
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 38px 26px 28px;
-    margin-bottom: 30px;
-    box-shadow: 0 14px 40px rgba(176,30,48,0.08);
-  }
-  .masha-hero::before {
-    content: '';
-    position: absolute;
-    inset: 8px;
-    border: 1px solid #f5d3d8;
-    border-radius: 14px;
-    pointer-events: none;
+    padding: 14px 0 30px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 28px;
   }
   .masha-script {
     font-family: 'Marck Script', 'Snell Roundhand', cursive;
-    font-size: 46px;
-    color: var(--accent);
+    font-size: 54px;
+    color: var(--ink);
     line-height: 1.05;
-    position: relative;
   }
   .masha-hero p {
-    max-width: 540px;
-    margin: 12px auto 0;
+    max-width: 520px;
+    margin: 10px auto 0;
     color: var(--ink-soft);
-    font-size: 14.5px;
-    position: relative;
+    font-size: 14px;
   }
-  .masha-orn { margin-top: 14px; color: var(--accent); font-size: 14px; letter-spacing: 12px; }
-  @media (max-width: 640px) { .masha-script { font-size: 34px; } .masha-hero { padding: 28px 16px 22px; } }
+  .ob-head .ob-sub em { font-style: italic; color: var(--ink); }
+  @media (max-width: 640px) { .masha-script { font-size: 38px; } }
 </style>
 </head>
 <body>
   <div class="page">
     <div class="masha-hero">
       <div class="masha-script">Привет, Машенька!</div>
-      <p>Это твой гардероб — все вещи на одной странице. Кликни любую, и вокруг останется только то, что с ней дружит. Кликай дальше — и собери образ целиком, как рецепт идеального вечера.</p>
-      <div class="masha-orn">❦&nbsp;❦&nbsp;❦</div>
+      <p>Это твой гардероб. Кликни вещь — останется только то, что с ней сочетается. Собери образ целиком.</p>
     </div>
     <header class="hero">
       <div>
@@ -533,6 +487,32 @@ const ITEMS = [{"id": "low_black_wide_pants", "cat": "low", "catTitle": "Низ�
 const CATEGORIES = [{"id": "low", "title": "Низы"}, {"id": "top", "title": "Верх"}, {"id": "outer", "title": "Верхний слой"}, {"id": "shoes", "title": "Обувь"}, {"id": "acc", "title": "Аксессуары"}, {"id": "dress", "title": "Платья"}];
 // Initial compatibility rules: array of [idA, idB] pairs (undirected)
 let RULES = [["low_black_wide_pants", "top_black_shirt"], ["low_black_wide_pants", "top_black_wrap_top"], ["low_black_wide_pants", "top_grey_longsleeve"], ["low_black_wide_pants", "top_brown_tshirt"], ["low_black_wide_pants", "top_navy_longsleeve"], ["low_black_wide_pants", "top_white_longsleeve"], ["low_black_wide_pants", "top_black_tshirt"], ["low_black_wide_pants", "top_white_tshirt"], ["low_black_wide_pants", "top_brown_turtleneck"], ["low_black_wide_pants", "top_black_corset"], ["low_black_wide_pants", "top_black_bodysuit"], ["low_black_wide_pants", "outer_grey_pinstripe_blazer"], ["low_black_wide_pants", "outer_black_oversized_shirt"], ["low_black_wide_pants", "outer_dark_blazer"], ["low_black_wide_pants", "outer_navy_jacket"], ["low_black_wide_pants", "outer_brown_trench"], ["low_black_wide_pants", "shoes_black_slingback"], ["low_black_wide_pants", "shoes_black_loafers"], ["low_black_wide_pants", "shoes_white_ballet"], ["low_black_wide_pants", "acc_black_belt"], ["low_black_wide_pants", "acc_brown_thin_belt"], ["low_grey_pants", "top_black_shirt"], ["low_grey_pants", "top_black_wrap_top"], ["low_grey_pants", "top_grey_longsleeve"], ["low_grey_pants", "top_brown_tshirt"], ["low_grey_pants", "top_navy_longsleeve"], ["low_grey_pants", "top_white_longsleeve"], ["low_grey_pants", "top_black_tshirt"], ["low_grey_pants", "top_white_tshirt"], ["low_grey_pants", "top_brown_turtleneck"], ["low_grey_pants", "top_black_corset"], ["low_grey_pants", "top_black_bodysuit"], ["low_grey_pants", "outer_grey_pinstripe_blazer"], ["low_grey_pants", "outer_black_oversized_shirt"], ["low_grey_pants", "outer_dark_blazer"], ["low_grey_pants", "outer_navy_jacket"], ["low_grey_pants", "outer_brown_trench"], ["low_grey_pants", "shoes_black_slingback"], ["low_grey_pants", "shoes_black_loafers"], ["low_grey_pants", "shoes_white_ballet"], ["low_grey_pants", "acc_black_belt"], ["low_grey_pants", "acc_brown_thin_belt"], ["low_black_jeans", "top_black_shirt"], ["low_black_jeans", "top_black_wrap_top"], ["low_black_jeans", "top_grey_longsleeve"], ["low_black_jeans", "top_brown_tshirt"], ["low_black_jeans", "top_navy_longsleeve"], ["low_black_jeans", "top_white_longsleeve"], ["low_black_jeans", "top_black_tshirt"], ["low_black_jeans", "top_white_tshirt"], ["low_black_jeans", "top_brown_turtleneck"], ["low_black_jeans", "top_black_corset"], ["low_black_jeans", "top_black_bodysuit"], ["low_black_jeans", "outer_grey_pinstripe_blazer"], ["low_black_jeans", "outer_black_oversized_shirt"], ["low_black_jeans", "outer_dark_blazer"], ["low_black_jeans", "outer_navy_jacket"], ["low_black_jeans", "outer_brown_trench"], ["low_black_jeans", "shoes_black_slingback"], ["low_black_jeans", "shoes_black_loafers"], ["low_black_jeans", "shoes_white_ballet"], ["low_black_jeans", "acc_black_belt"], ["low_black_jeans", "acc_brown_thin_belt"], ["low_brown_wide_pants", "top_black_shirt"], ["low_brown_wide_pants", "top_black_wrap_top"], ["low_brown_wide_pants", "top_grey_longsleeve"], ["low_brown_wide_pants", "top_brown_tshirt"], ["low_brown_wide_pants", "top_white_longsleeve"], ["low_brown_wide_pants", "top_black_tshirt"], ["low_brown_wide_pants", "top_white_tshirt"], ["low_brown_wide_pants", "top_brown_turtleneck"], ["low_brown_wide_pants", "top_black_corset"], ["low_brown_wide_pants", "top_black_bodysuit"], ["low_brown_wide_pants", "outer_grey_pinstripe_blazer"], ["low_brown_wide_pants", "outer_black_oversized_shirt"], ["low_brown_wide_pants", "outer_dark_blazer"], ["low_brown_wide_pants", "outer_brown_trench"], ["low_brown_wide_pants", "shoes_black_slingback"], ["low_brown_wide_pants", "shoes_black_loafers"], ["low_brown_wide_pants", "shoes_white_ballet"], ["low_brown_wide_pants", "acc_black_belt"], ["low_brown_wide_pants", "acc_brown_thin_belt"], ["low_white_pants", "top_black_shirt"], ["low_white_pants", "top_black_wrap_top"], ["low_white_pants", "top_grey_longsleeve"], ["low_white_pants", "top_brown_tshirt"], ["low_white_pants", "top_navy_longsleeve"], ["low_white_pants", "top_white_longsleeve"], ["low_white_pants", "top_black_tshirt"], ["low_white_pants", "top_white_tshirt"], ["low_white_pants", "top_brown_turtleneck"], ["low_white_pants", "top_black_corset"], ["low_white_pants", "top_black_bodysuit"], ["low_white_pants", "outer_grey_pinstripe_blazer"], ["low_white_pants", "outer_black_oversized_shirt"], ["low_white_pants", "outer_dark_blazer"], ["low_white_pants", "outer_navy_jacket"], ["low_white_pants", "outer_brown_trench"], ["low_white_pants", "shoes_black_slingback"], ["low_white_pants", "shoes_black_loafers"], ["low_white_pants", "shoes_white_ballet"], ["low_white_pants", "acc_black_belt"], ["low_white_pants", "acc_brown_thin_belt"], ["low_black_midiskirt", "top_black_shirt"], ["low_black_midiskirt", "top_black_wrap_top"], ["low_black_midiskirt", "top_grey_longsleeve"], ["low_black_midiskirt", "top_brown_tshirt"], ["low_black_midiskirt", "top_navy_longsleeve"], ["low_black_midiskirt", "top_white_longsleeve"], ["low_black_midiskirt", "top_black_tshirt"], ["low_black_midiskirt", "top_white_tshirt"], ["low_black_midiskirt", "top_brown_turtleneck"], ["low_black_midiskirt", "top_black_corset"], ["low_black_midiskirt", "top_black_bodysuit"], ["low_black_midiskirt", "outer_grey_pinstripe_blazer"], ["low_black_midiskirt", "outer_black_oversized_shirt"], ["low_black_midiskirt", "outer_dark_blazer"], ["low_black_midiskirt", "outer_navy_jacket"], ["low_black_midiskirt", "outer_brown_trench"], ["low_black_midiskirt", "shoes_black_slingback"], ["low_black_midiskirt", "shoes_black_loafers"], ["low_black_midiskirt", "shoes_white_ballet"], ["low_black_midiskirt", "acc_black_belt"], ["low_black_midiskirt", "acc_brown_thin_belt"], ["low_brown_miniskirt", "top_black_shirt"], ["low_brown_miniskirt", "top_black_wrap_top"], ["low_brown_miniskirt", "top_grey_longsleeve"], ["low_brown_miniskirt", "top_brown_tshirt"], ["low_brown_miniskirt", "top_white_longsleeve"], ["low_brown_miniskirt", "top_black_tshirt"], ["low_brown_miniskirt", "top_white_tshirt"], ["low_brown_miniskirt", "top_brown_turtleneck"], ["low_brown_miniskirt", "top_black_corset"], ["low_brown_miniskirt", "top_black_bodysuit"], ["low_brown_miniskirt", "outer_grey_pinstripe_blazer"], ["low_brown_miniskirt", "outer_black_oversized_shirt"], ["low_brown_miniskirt", "outer_dark_blazer"], ["low_brown_miniskirt", "outer_brown_trench"], ["low_brown_miniskirt", "shoes_black_slingback"], ["low_brown_miniskirt", "shoes_black_loafers"], ["low_brown_miniskirt", "shoes_white_ballet"], ["low_brown_miniskirt", "acc_black_belt"], ["low_brown_miniskirt", "acc_brown_thin_belt"], ["low_burgundy_skirt", "top_black_shirt"], ["low_burgundy_skirt", "top_black_wrap_top"], ["low_burgundy_skirt", "top_grey_longsleeve"], ["low_burgundy_skirt", "top_brown_tshirt"], ["low_burgundy_skirt", "top_white_longsleeve"], ["low_burgundy_skirt", "top_black_tshirt"], ["low_burgundy_skirt", "top_white_tshirt"], ["low_burgundy_skirt", "top_brown_turtleneck"], ["low_burgundy_skirt", "top_black_corset"], ["low_burgundy_skirt", "top_black_bodysuit"], ["low_burgundy_skirt", "outer_grey_pinstripe_blazer"], ["low_burgundy_skirt", "outer_black_oversized_shirt"], ["low_burgundy_skirt", "outer_dark_blazer"], ["low_burgundy_skirt", "outer_brown_trench"], ["low_burgundy_skirt", "shoes_black_slingback"], ["low_burgundy_skirt", "shoes_black_loafers"], ["low_burgundy_skirt", "shoes_white_ballet"], ["low_burgundy_skirt", "acc_black_belt"], ["low_burgundy_skirt", "acc_brown_thin_belt"], ["top_black_shirt", "outer_grey_pinstripe_blazer"], ["top_black_shirt", "outer_black_oversized_shirt"], ["top_black_shirt", "outer_dark_blazer"], ["top_black_shirt", "outer_navy_jacket"], ["top_black_shirt", "outer_brown_trench"], ["top_black_shirt", "shoes_black_slingback"], ["top_black_shirt", "shoes_black_loafers"], ["top_black_shirt", "shoes_white_ballet"], ["top_black_shirt", "acc_black_belt"], ["top_black_shirt", "acc_brown_thin_belt"], ["top_black_wrap_top", "outer_grey_pinstripe_blazer"], ["top_black_wrap_top", "outer_black_oversized_shirt"], ["top_black_wrap_top", "outer_dark_blazer"], ["top_black_wrap_top", "outer_navy_jacket"], ["top_black_wrap_top", "outer_brown_trench"], ["top_black_wrap_top", "shoes_black_slingback"], ["top_black_wrap_top", "shoes_black_loafers"], ["top_black_wrap_top", "shoes_white_ballet"], ["top_black_wrap_top", "acc_black_belt"], ["top_black_wrap_top", "acc_brown_thin_belt"], ["top_grey_longsleeve", "outer_grey_pinstripe_blazer"], ["top_grey_longsleeve", "outer_black_oversized_shirt"], ["top_grey_longsleeve", "outer_dark_blazer"], ["top_grey_longsleeve", "outer_navy_jacket"], ["top_grey_longsleeve", "outer_brown_trench"], ["top_grey_longsleeve", "shoes_black_slingback"], ["top_grey_longsleeve", "shoes_black_loafers"], ["top_grey_longsleeve", "shoes_white_ballet"], ["top_grey_longsleeve", "acc_black_belt"], ["top_grey_longsleeve", "acc_brown_thin_belt"], ["top_brown_tshirt", "outer_grey_pinstripe_blazer"], ["top_brown_tshirt", "outer_black_oversized_shirt"], ["top_brown_tshirt", "outer_dark_blazer"], ["top_brown_tshirt", "outer_brown_trench"], ["top_brown_tshirt", "shoes_black_slingback"], ["top_brown_tshirt", "shoes_black_loafers"], ["top_brown_tshirt", "shoes_white_ballet"], ["top_brown_tshirt", "acc_black_belt"], ["top_brown_tshirt", "acc_brown_thin_belt"], ["top_navy_longsleeve", "outer_grey_pinstripe_blazer"], ["top_navy_longsleeve", "outer_black_oversized_shirt"], ["top_navy_longsleeve", "outer_navy_jacket"], ["top_navy_longsleeve", "shoes_black_slingback"], ["top_navy_longsleeve", "shoes_black_loafers"], ["top_navy_longsleeve", "shoes_white_ballet"], ["top_navy_longsleeve", "acc_black_belt"], ["top_white_longsleeve", "outer_grey_pinstripe_blazer"], ["top_white_longsleeve", "outer_black_oversized_shirt"], ["top_white_longsleeve", "outer_dark_blazer"], ["top_white_longsleeve", "outer_navy_jacket"], ["top_white_longsleeve", "outer_brown_trench"], ["top_white_longsleeve", "shoes_black_slingback"], ["top_white_longsleeve", "shoes_black_loafers"], ["top_white_longsleeve", "shoes_white_ballet"], ["top_white_longsleeve", "acc_black_belt"], ["top_white_longsleeve", "acc_brown_thin_belt"], ["top_black_tshirt", "outer_grey_pinstripe_blazer"], ["top_black_tshirt", "outer_black_oversized_shirt"], ["top_black_tshirt", "outer_dark_blazer"], ["top_black_tshirt", "outer_navy_jacket"], ["top_black_tshirt", "outer_brown_trench"], ["top_black_tshirt", "shoes_black_slingback"], ["top_black_tshirt", "shoes_black_loafers"], ["top_black_tshirt", "shoes_white_ballet"], ["top_black_tshirt", "acc_black_belt"], ["top_black_tshirt", "acc_brown_thin_belt"], ["top_white_tshirt", "outer_grey_pinstripe_blazer"], ["top_white_tshirt", "outer_black_oversized_shirt"], ["top_white_tshirt", "outer_dark_blazer"], ["top_white_tshirt", "outer_navy_jacket"], ["top_white_tshirt", "outer_brown_trench"], ["top_white_tshirt", "shoes_black_slingback"], ["top_white_tshirt", "shoes_black_loafers"], ["top_white_tshirt", "shoes_white_ballet"], ["top_white_tshirt", "acc_black_belt"], ["top_white_tshirt", "acc_brown_thin_belt"], ["top_brown_turtleneck", "outer_grey_pinstripe_blazer"], ["top_brown_turtleneck", "outer_black_oversized_shirt"], ["top_brown_turtleneck", "outer_dark_blazer"], ["top_brown_turtleneck", "outer_brown_trench"], ["top_brown_turtleneck", "shoes_black_slingback"], ["top_brown_turtleneck", "shoes_black_loafers"], ["top_brown_turtleneck", "shoes_white_ballet"], ["top_brown_turtleneck", "acc_black_belt"], ["top_brown_turtleneck", "acc_brown_thin_belt"], ["top_black_corset", "outer_grey_pinstripe_blazer"], ["top_black_corset", "outer_black_oversized_shirt"], ["top_black_corset", "outer_dark_blazer"], ["top_black_corset", "outer_navy_jacket"], ["top_black_corset", "outer_brown_trench"], ["top_black_corset", "shoes_black_slingback"], ["top_black_corset", "shoes_black_loafers"], ["top_black_corset", "shoes_white_ballet"], ["top_black_corset", "acc_black_belt"], ["top_black_corset", "acc_brown_thin_belt"], ["top_black_bodysuit", "outer_grey_pinstripe_blazer"], ["top_black_bodysuit", "outer_black_oversized_shirt"], ["top_black_bodysuit", "outer_dark_blazer"], ["top_black_bodysuit", "outer_navy_jacket"], ["top_black_bodysuit", "outer_brown_trench"], ["top_black_bodysuit", "shoes_black_slingback"], ["top_black_bodysuit", "shoes_black_loafers"], ["top_black_bodysuit", "shoes_white_ballet"], ["top_black_bodysuit", "acc_black_belt"], ["top_black_bodysuit", "acc_brown_thin_belt"], ["outer_grey_pinstripe_blazer", "shoes_black_slingback"], ["outer_grey_pinstripe_blazer", "shoes_black_loafers"], ["outer_grey_pinstripe_blazer", "shoes_white_ballet"], ["outer_grey_pinstripe_blazer", "acc_black_belt"], ["outer_grey_pinstripe_blazer", "acc_brown_thin_belt"], ["outer_grey_pinstripe_blazer", "dress_black"], ["outer_grey_pinstripe_blazer", "dress_white"], ["outer_black_oversized_shirt", "shoes_black_slingback"], ["outer_black_oversized_shirt", "shoes_black_loafers"], ["outer_black_oversized_shirt", "shoes_white_ballet"], ["outer_black_oversized_shirt", "acc_black_belt"], ["outer_black_oversized_shirt", "acc_brown_thin_belt"], ["outer_black_oversized_shirt", "dress_black"], ["outer_black_oversized_shirt", "dress_white"], ["outer_dark_blazer", "shoes_black_slingback"], ["outer_dark_blazer", "shoes_black_loafers"], ["outer_dark_blazer", "shoes_white_ballet"], ["outer_dark_blazer", "acc_black_belt"], ["outer_dark_blazer", "acc_brown_thin_belt"], ["outer_dark_blazer", "dress_black"], ["outer_dark_blazer", "dress_white"], ["outer_navy_jacket", "shoes_black_slingback"], ["outer_navy_jacket", "shoes_black_loafers"], ["outer_navy_jacket", "shoes_white_ballet"], ["outer_navy_jacket", "acc_black_belt"], ["outer_navy_jacket", "dress_black"], ["outer_navy_jacket", "dress_white"], ["outer_brown_trench", "shoes_black_slingback"], ["outer_brown_trench", "shoes_black_loafers"], ["outer_brown_trench", "shoes_white_ballet"], ["outer_brown_trench", "acc_black_belt"], ["outer_brown_trench", "acc_brown_thin_belt"], ["outer_brown_trench", "dress_black"], ["outer_brown_trench", "dress_white"], ["shoes_black_slingback", "acc_black_belt"], ["shoes_black_slingback", "acc_brown_thin_belt"], ["shoes_black_slingback", "dress_black"], ["shoes_black_slingback", "dress_white"], ["shoes_black_loafers", "acc_black_belt"], ["shoes_black_loafers", "acc_brown_thin_belt"], ["shoes_black_loafers", "dress_black"], ["shoes_black_loafers", "dress_white"], ["shoes_white_ballet", "acc_black_belt"], ["shoes_white_ballet", "acc_brown_thin_belt"], ["shoes_white_ballet", "dress_black"], ["shoes_white_ballet", "dress_white"], ["acc_black_belt", "dress_black"], ["acc_black_belt", "dress_white"], ["acc_brown_thin_belt", "dress_black"], ["acc_brown_thin_belt", "dress_white"]];
+
+// ===== Compliments =====
+const COMPLIMENTS = [
+  'эти вещи будто созданы друг для друга',
+  'очень в твоём стиле',
+  'десять из десяти',
+  'ты в этом будешь неотразима',
+  'элегантно и без усилий',
+  'идеально на сегодня',
+  'вкус — безупречный',
+  'этот образ просит выхода в свет',
+  'как с обложки',
+  'смело и очень красиво',
+  'минимум вещей — максимум стиля',
+  'точное попадание',
+  'в этом сочетании есть магия',
+  'Машенька, это точно твоё',
+  'носи и сияй'
+];
+let _lastCompliment = -1;
+function pickCompliment() {
+  let i;
+  do { i = Math.floor(Math.random() * COMPLIMENTS.length); } while (i === _lastCompliment);
+  _lastCompliment = i;
+  return COMPLIMENTS[i];
+}
 
 // ===== STATE =====
 let mode = 'browse'; // 'browse' | 'edit'
@@ -691,7 +671,7 @@ function renderOutfitBar() {
       <div class="plabel">${it.label}</div>
     </div>`).join('');
   const n = selectedIds.length;
-  obSubEl.textContent = `Собрано с заботой · ${n} ${plural(n, 'вещь', 'вещи', 'вещей')} в образе`;
+  obSubEl.innerHTML = `Собрано с заботой · ${n} ${plural(n, 'вещь', 'вещи', 'вещей')} в образе · <em>${pickCompliment()}</em>`;
   obPiecesEl.querySelectorAll('.ob-piece .rm').forEach(rm => {
     rm.addEventListener('click', e => {
       e.stopPropagation();
