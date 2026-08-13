@@ -124,59 +124,57 @@
   .filters button:hover { border-color: var(--ink); }
   .filters button.active { background: var(--ink); color: #fff; border-color: var(--ink); }
 
-  /* Assembled outfit bar */
-  .outfit-bar {
+  /* Workspace: sticky body-stack column + grid */
+  .workspace { display: flex; gap: 26px; align-items: flex-start; }
+  .grid-col { flex: 1; min-width: 0; }
+  .outfit-col {
     display: none;
+    flex: none;
+    width: 276px;
+    position: sticky;
+    top: 16px;
     background: var(--card-bg);
     border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 16px 18px 14px;
-    margin-bottom: 26px;
+    border-radius: 18px;
+    padding: 18px 16px 14px;
   }
-  .outfit-bar.visible { display: block; }
-  .ob-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-  }
-  .ob-head .ob-title { font-size: 14px; font-weight: 600; }
-  .ob-head .ob-sub { font-size: 12.5px; color: var(--ink-soft); }
-  .ob-head button {
+  .outfit-col.visible { display: block; }
+  .oc-head { text-align: center; margin-bottom: 14px; }
+  .ob-title { font-size: 15px; font-weight: 600; }
+  .ob-sub { font-size: 12px; color: var(--ink-soft); margin-top: 3px; line-height: 1.35; }
+  .oc-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .oc-actions button {
     font-family: inherit;
     font-size: 12.5px;
-    padding: 7px 14px;
+    padding: 9px 14px;
     border-radius: 10px;
     border: 1px solid var(--line);
     background: #fff;
     cursor: pointer;
     color: var(--ink);
+    width: 100%;
   }
-  .ob-head button:hover { border-color: var(--ink); }
-  .ob-pieces { display: flex; gap: 12px; flex-wrap: wrap; }
-  .ob-piece { width: 88px; text-align: center; position: relative; }
-  .ob-piece .thumb {
-    width: 88px;
-    height: 108px;
+  .oc-actions button:hover { border-color: var(--ink); }
+
+  /* Body-like vertical stack */
+  .body-stack { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .bs-row { display: flex; gap: 10px; justify-content: center; align-items: center; }
+  .ob-piece {
+    position: relative;
     background: #fff;
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 6px;
-    margin-bottom: 4px;
+    padding: 7px;
   }
-  .ob-piece .thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
-  .ob-piece .pcat {
-    font-size: 9.5px;
-    color: #b3b3b3;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
-  .ob-piece .plabel { font-size: 10.5px; color: var(--ink-soft); line-height: 1.25; }
+  .ob-piece img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .ob-piece.bs-top, .ob-piece.bs-low { width: 132px; height: 152px; }
+  .ob-piece.bs-dress { width: 140px; height: 200px; }
+  .ob-piece.bs-outer { width: 100px; height: 124px; }
+  .ob-piece.bs-acc { width: 96px; height: 74px; }
+  .ob-piece.bs-shoes { width: 132px; height: 88px; }
   .ob-piece .rm {
     position: absolute;
     top: -7px;
@@ -194,6 +192,7 @@
     cursor: pointer;
     border: 2px solid #fff;
     box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    z-index: 2;
   }
 
   /* Item grid */
@@ -494,12 +493,20 @@
     to { transform: translateY(105vh) rotate(720deg); opacity: 0.75; }
   }
 
+  @media (max-width: 860px) {
+    .workspace { flex-direction: column; }
+    .outfit-col { position: static; width: 100%; }
+    .oc-actions { flex-direction: row; }
+    .oc-actions button { width: auto; flex: 1; }
+  }
   @media (max-width: 640px) {
     .page { padding: 24px 16px 60px; }
     header.hero h1 { font-size: 22px; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 8px; }
-    .ob-piece { width: 74px; }
-    .ob-piece .thumb { width: 74px; height: 92px; }
+    .ob-piece.bs-top, .ob-piece.bs-low { width: 112px; height: 130px; }
+    .ob-piece.bs-dress { width: 118px; height: 168px; }
+    .ob-piece.bs-outer { width: 86px; height: 106px; }
+    .ob-piece.bs-shoes { width: 112px; height: 76px; }
   }
 </style>
 
@@ -553,23 +560,24 @@
       <button class="btn-assemble" id="btnAssemble">✨ Собрать образ за меня</button>
     </div>
 
-    <div class="outfit-bar" id="outfitBar">
-      <div class="ob-head">
-        <div>
+    <div class="workspace">
+      <aside class="outfit-col" id="outfitBar">
+        <div class="oc-head">
           <div class="ob-title">Собранный образ</div>
           <div class="ob-sub" id="obSub"></div>
         </div>
-        <div class="ob-actions" style="display:flex; gap:8px;">
+        <div class="body-stack" id="obPieces"></div>
+        <div class="oc-actions">
           <button id="btnReshuffle">🎲 Пересобрать</button>
           <button id="btnClearSel">Сбросить образ</button>
         </div>
+      </aside>
+      <div class="grid-col">
+        <div class="picker-section">
+          <div class="picker-title" id="pickerTitle">Все вещи</div>
+          <div id="mainGrid"></div>
+        </div>
       </div>
-      <div class="ob-pieces" id="obPieces"></div>
-    </div>
-
-    <div class="picker-section">
-      <div class="picker-title" id="pickerTitle">Все вещи</div>
-      <div id="mainGrid"></div>
     </div>
 
     <div class="export-panel">
@@ -852,19 +860,31 @@ function renderOutfitBar() {
     return;
   }
   outfitBarEl.classList.add('visible');
-  const ordered = [];
-  CATEGORIES.forEach(c => {
-    selectedIds.forEach(id => {
-      if (itemsById[id].cat === c.id) ordered.push(itemsById[id]);
-    });
+  // body-like vertical stack: (dress|top + outer) / (low + acc) / shoes
+  const byCat = {};
+  selectedIds.forEach(id => {
+    const it = itemsById[id];
+    (byCat[it.cat] = byCat[it.cat] || []).push(it);
   });
-  obPiecesEl.innerHTML = ordered.map(it => `
-    <div class="ob-piece" data-id="${it.id}">
+  const piece = (it, cls) => `
+    <div class="ob-piece ${cls}" data-id="${it.id}" title="${it.label}">
       <div class="rm" title="Убрать из образа">×</div>
-      <div class="thumb"><img src="data:image/jpeg;base64,${it.b64}" alt="${it.label}"></div>
-      <div class="pcat">${catsById[it.cat].title}</div>
-      <div class="plabel">${it.label}</div>
-    </div>`).join('');
+      <img src="data:image/jpeg;base64,${it.b64}" alt="${it.label}">
+    </div>`;
+  const rows = [];
+  const row1 = [
+    ...(byCat.dress || []).map(it => piece(it, 'bs-dress')),
+    ...(byCat.top || []).map(it => piece(it, 'bs-top')),
+    ...(byCat.outer || []).map(it => piece(it, 'bs-outer')),
+  ];
+  if (row1.length) rows.push(row1);
+  const row2 = [
+    ...(byCat.low || []).map(it => piece(it, 'bs-low')),
+    ...(byCat.acc || []).map(it => piece(it, 'bs-acc')),
+  ];
+  if (row2.length) rows.push(row2);
+  if (byCat.shoes) rows.push(byCat.shoes.map(it => piece(it, 'bs-shoes')));
+  obPiecesEl.innerHTML = rows.map(r => `<div class="bs-row">${r.join('')}</div>`).join('');
   const n = selectedIds.length;
   obSubEl.innerHTML = `Собрано с заботой · ${n} ${plural(n, 'вещь', 'вещи', 'вещей')} в образе · <em>${pickCompliment()}</em>`;
   obPiecesEl.querySelectorAll('.ob-piece .rm').forEach(rm => {
