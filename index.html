@@ -103,6 +103,77 @@
   .edit-banner.visible { display: block; }
   .edit-banner b { color: #4a3d10; }
 
+  /* Manage panel (add/remove items) */
+  .manage-panel {
+    display: none;
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-bottom: 24px;
+  }
+  .manage-panel.visible { display: block; }
+  .mp-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+  .mp-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .mp-form input[type="text"], .mp-form select {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink);
+  }
+  .mp-form input[type="text"] { flex: 1; min-width: 200px; }
+  .mp-file { position: relative; overflow: hidden; display: inline-block; }
+  .mp-file input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .mp-file span {
+    display: inline-block;
+    font-size: 13px;
+    padding: 9px 14px;
+    border: 1px dashed var(--ink-soft);
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    color: var(--ink);
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mp-check { font-size: 12.5px; color: var(--ink-soft); display: flex; align-items: center; gap: 6px; }
+  .mp-form button {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: #fff;
+    cursor: pointer;
+  }
+  .mp-hint { font-size: 12px; color: var(--ink-soft); margin-top: 10px; }
+  .mp-hint.err { color: #b01e30; }
+  .del-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--line);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    z-index: 2;
+  }
+  .del-badge.confirm { background: #b01e30; color: #fff; border-color: #b01e30; font-weight: 600; }
+  .item-card.confirm-del { border-color: #b01e30; }
+
   /* Category filter chips */
   .filters {
     display: flex;
@@ -496,8 +567,6 @@
     font-size: 20px;
     animation: heartFloat 1.8s ease-in-out infinite;
   }
-  .w-hearts span:nth-child(2) { animation-delay: 0.3s; }
-  .w-hearts span:nth-child(3) { animation-delay: 0.6s; }
   @keyframes heartFloat {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-9px); }
@@ -584,11 +653,27 @@
       <div class="mode-switch">
         <button id="btnBrowse" class="active">Собрать образ</button>
         <button id="btnEdit">Настроить сочетания</button>
+        <button id="btnManage">Вещи</button>
       </div>
     </header>
 
     <div class="edit-banner" id="editBanner">
       <b>Режим настройки сочетаний.</b> Кликни на вещь ниже, чтобы выбрать её как «якорь», затем кликай по другим вещам — они будут помечаться как сочетающиеся с якорем (зелёная рамка + галочка). Повторный клик — снять связь. Переключай якорь, кликая на другую вещь той же категории.
+    </div>
+
+    <div class="manage-panel" id="managePanel">
+      <div class="mp-title">➕ Добавить вещь</div>
+      <div class="mp-form">
+        <label class="mp-file">
+          <input type="file" id="addPhoto" accept="image/*">
+          <span id="addPhotoLabel">📷 Выбрать фото</span>
+        </label>
+        <input type="text" id="addLabel" placeholder="Название (например: красная юбка)" maxlength="60">
+        <select id="addCat"></select>
+        <label class="mp-check"><input type="checkbox" id="addLinkAll" checked> сразу сочетать со всем подходящим</label>
+        <button id="btnAddItem">Добавить</button>
+      </div>
+      <div class="mp-hint" id="addMsg">Фото лучше на белом фоне. Удаление — корзинка на карточке (нажать дважды). Всё сохраняется в этом браузере автоматически.</div>
     </div>
 
     <div class="filters" id="catFilters"></div>
@@ -645,7 +730,7 @@
       <div id="cWish" style="display:none">
         <div class="w-name" id="wName"></div>
         <div class="w-text" id="wText"></div>
-        <div class="w-hearts"><span>🤍</span><span>🖤</span><span>🤍</span></div>
+        <div class="w-hearts" id="wHearts"></div>
         <div class="c-actions">
           <button class="primary" id="cWishClose">Спасибо 🤍</button>
         </div>
@@ -677,6 +762,7 @@ let selectedIds = [];      // browse mode: the outfit being assembled (multi-sel
 let manualIds = new Set(); // items picked by hand (survive «Пересобрать»)
 let prevComplete = false;  // celebration edge-trigger
 let anchorId = null;       // edit mode: the anchor item
+let pendingDelete = null;  // manage mode: two-tap delete
 let prevRendered = new Set();
 
 const itemsById = Object.fromEntries(ITEMS.map(it => [it.id, it]));
@@ -700,6 +786,42 @@ function toggleLink(a, b) {
   const k = ruleKey(a, b);
   if (ruleSet.has(k)) ruleSet.delete(k);
   else ruleSet.add(k);
+  saveStore();
+}
+
+// ===== Local persistence (survives reloads, lives in this browser) =====
+const STORE_KEY = 'masha_wardrobe_v1';
+const baseRuleSet = new Set(ruleSet);
+let _store = {};
+try { _store = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) {}
+const DELETED_BUILTIN = [...(_store.deletedIds || [])];
+(_store.customItems || []).forEach(it => {
+  it.custom = true;
+  if (!ITEMS.some(x => x.id === it.id)) ITEMS.push(it);
+});
+DELETED_BUILTIN.forEach(id => {
+  const i = ITEMS.findIndex(it => it.id === id);
+  if (i >= 0) ITEMS.splice(i, 1);
+});
+(_store.rulesDel || []).forEach(k => ruleSet.delete(k));
+function itemExists(id) { return ITEMS.some(it => it.id === id); }
+(_store.rulesAdd || []).forEach(k => {
+  const [a, b] = k.split('|');
+  if (itemExists(a) && itemExists(b)) ruleSet.add(k);
+});
+// itemsById was built before customs/deletions — resync
+ITEMS.forEach(it => { itemsById[it.id] = it; });
+Object.keys(itemsById).forEach(k => { if (!itemExists(k)) delete itemsById[k]; });
+
+function saveStore() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      customItems: ITEMS.filter(it => it.custom),
+      deletedIds: DELETED_BUILTIN,
+      rulesAdd: [...ruleSet].filter(k => !baseRuleSet.has(k) && k.split('|').every(itemExists)),
+      rulesDel: [...baseRuleSet].filter(k => !ruleSet.has(k)),
+    }));
+  } catch (e) { console.warn('[wardrobe] localStorage save failed', e); }
 }
 
 // ===== DOM refs =====
@@ -827,9 +949,14 @@ function hideCelebrate() {
 // ===== Wish screen (after «Кайф») =====
 const WISH_NAMES = ["Машенька", "Машулечка", "Машунечка", "Машуся"];
 const WISHES = ["пусть день будет таким же прекрасным, как ты", "прекрасного дня и лёгкой походки", "пусть сегодня всё сложится само собой", "улыбнись — тебе очень идёт", "пусть день принесёт хорошие новости", "иди и покоряй этот день", "пусть комплименты сегодня не заканчиваются", "солнечного настроения, что бы ни было за окном", "пусть всё задуманное сегодня получится", "будь счастлива — сегодня и всегда", "этот день уже счастливчик: он проведёт его с тобой", "красивого дня красивому человеку"];
+const WISH_EMOJI = ['❤️', '⭐', '✨', '❣️', '🌟', '💫'];
 function showWish() {
   document.getElementById('wName').textContent = randOf(WISH_NAMES) + '!';
   document.getElementById('wText').textContent = randOf(WISHES);
+  const n = 3 + Math.floor(Math.random() * 3); // 3–5 random hearts & stars
+  document.getElementById('wHearts').innerHTML = Array.from({length: n}, () =>
+    `<span style="animation-delay:${(Math.random() * 1.2).toFixed(2)}s">${randOf(WISH_EMOJI)}</span>`
+  ).join('');
   document.getElementById('cMain').style.display = 'none';
   document.getElementById('cWish').style.display = '';
 }
@@ -853,7 +980,7 @@ function compatibleWithSelection() {
 // Selected items are NOT shown in the grid — they live in the outfit bar,
 // and their whole category disappears (nothing in it can combine anyway).
 function visibleIdSet() {
-  if (mode === 'edit' || selectedIds.length === 0) {
+  if (mode !== 'browse' || selectedIds.length === 0) {
     return new Set(ITEMS.map(it => it.id));
   }
   return new Set(compatibleWithSelection());
@@ -885,6 +1012,8 @@ function renderMainGrid(withAppear) {
     pickerTitleEl.innerHTML = anchorId
       ? `Якорь: <b>${itemsById[anchorId].label}</b> <span class="sub">— клик по вещи ниже добавит/уберёт сочетание</span>`
       : `Выбери вещь-якорь <span class="sub">— затем отмечай, что с ней сочетается</span>`;
+  } else if (mode === 'manage') {
+    pickerTitleEl.innerHTML = `Твои вещи <span class="sub">— 🗑 удаляет (нажми дважды), форма выше добавляет новые</span>`;
   } else if (selectedIds.length === 0) {
     pickerTitleEl.innerHTML = `Все вещи <span class="sub">— клик по вещи скроет всё, что с ней не сочетается</span>`;
   } else {
@@ -903,6 +1032,13 @@ function renderMainGrid(withAppear) {
       } else if (anchorId && areLinked(anchorId, it.id)) {
         cls += ' linked';
         badge = '<div class="link-badge">✓</div>';
+      }
+    } else if (mode === 'manage') {
+      if (pendingDelete === it.id) {
+        cls += ' confirm-del';
+        badge = '<div class="del-badge confirm">удалить?</div>';
+      } else {
+        badge = '<div class="del-badge">🗑</div>';
       }
     }
     if (withAppear && !prevRendered.has(it.id)) cls += ' appear';
@@ -986,7 +1122,31 @@ function deselect(id) {
   applyGridChange();
 }
 
+function deleteItem(id) {
+  const i = ITEMS.findIndex(it => it.id === id);
+  if (i < 0) return;
+  if (!ITEMS[i].custom) DELETED_BUILTIN.push(id);
+  ITEMS.splice(i, 1);
+  delete itemsById[id];
+  selectedIds = selectedIds.filter(x => x !== id);
+  manualIds.delete(id);
+  if (anchorId === id) anchorId = null;
+  saveStore();
+  renderMainGrid();
+  renderOutfitBar();
+}
+
 function onItemClick(id) {
+  if (mode === 'manage') {
+    if (pendingDelete === id) {
+      pendingDelete = null;
+      deleteItem(id);
+    } else {
+      pendingDelete = id;
+      renderMainGrid();
+    }
+    return;
+  }
   if (mode === 'edit') {
     if (!anchorId) {
       anchorId = id;
@@ -1010,32 +1170,88 @@ function onItemClick(id) {
 }
 
 // ===== Mode switching =====
-btnBrowse.addEventListener('click', () => {
-  mode = 'browse';
-  btnBrowse.classList.add('active');
-  btnEdit.classList.remove('active');
-  editBannerEl.classList.remove('visible');
-  assembleBarEl.style.display = '';
+const btnManage = document.getElementById('btnManage');
+const managePanelEl = document.getElementById('managePanel');
+function setMode(m) {
+  mode = m;
+  btnBrowse.classList.toggle('active', m === 'browse');
+  btnEdit.classList.toggle('active', m === 'edit');
+  btnManage.classList.toggle('active', m === 'manage');
+  editBannerEl.classList.toggle('visible', m === 'edit');
+  managePanelEl.classList.toggle('visible', m === 'manage');
+  assembleBarEl.style.display = m === 'browse' ? '' : 'none';
   anchorId = null;
+  pendingDelete = null;
   selectedIds = [];
   manualIds.clear();
   prevComplete = false;
   hideCelebrate();
   renderOutfitBar();
   renderMainGrid();
+}
+btnBrowse.addEventListener('click', () => setMode('browse'));
+btnEdit.addEventListener('click', () => setMode('edit'));
+btnManage.addEventListener('click', () => setMode('manage'));
+
+// ===== Add item (manage mode) =====
+document.getElementById('addCat').innerHTML =
+  CATEGORIES.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+let _addPhotoB64 = null;
+const addMsgEl = document.getElementById('addMsg');
+const ADD_HINT = addMsgEl.textContent;
+function addMsg(text, err) {
+  addMsgEl.textContent = text;
+  addMsgEl.classList.toggle('err', !!err);
+}
+document.getElementById('addPhoto').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 600;
+      const sc = Math.min(1, MAX / Math.max(img.width, img.height));
+      const cv = document.createElement('canvas');
+      cv.width = Math.max(1, Math.round(img.width * sc));
+      cv.height = Math.max(1, Math.round(img.height * sc));
+      const cx = cv.getContext('2d');
+      cx.fillStyle = '#fff';
+      cx.fillRect(0, 0, cv.width, cv.height);
+      cx.drawImage(img, 0, 0, cv.width, cv.height);
+      _addPhotoB64 = cv.toDataURL('image/jpeg', 0.82).split(',')[1];
+      document.getElementById('addPhotoLabel').textContent = '✓ ' + f.name;
+      addMsg(ADD_HINT);
+    };
+    img.src = rd.result;
+  };
+  rd.readAsDataURL(f);
 });
-btnEdit.addEventListener('click', () => {
-  mode = 'edit';
-  btnEdit.classList.add('active');
-  btnBrowse.classList.remove('active');
-  editBannerEl.classList.add('visible');
-  assembleBarEl.style.display = 'none';
-  selectedIds = [];
-  manualIds.clear();
-  prevComplete = false;
-  hideCelebrate();
-  anchorId = null;
-  renderOutfitBar();
+document.getElementById('btnAddItem').addEventListener('click', () => {
+  const label = document.getElementById('addLabel').value.trim();
+  const cat = document.getElementById('addCat').value;
+  if (!_addPhotoB64) { addMsg('Сначала выбери фото вещи.', true); return; }
+  if (!label) { addMsg('Дай вещи название.', true); return; }
+  const it = {
+    id: 'custom_' + Date.now(),
+    cat, catTitle: catsById[cat].title,
+    label, color: 'custom', b64: _addPhotoB64, custom: true,
+  };
+  ITEMS.push(it);
+  itemsById[it.id] = it;
+  if (document.getElementById('addLinkAll').checked) {
+    ITEMS.forEach(o => {
+      if (o.id === it.id || o.cat === it.cat) return;
+      const pair = new Set([o.cat, it.cat]);
+      if (pair.has('dress') && (pair.has('top') || pair.has('low'))) return;
+      ruleSet.add(ruleKey(o.id, it.id));
+    });
+  }
+  saveStore();
+  _addPhotoB64 = null;
+  document.getElementById('addLabel').value = '';
+  document.getElementById('addPhotoLabel').textContent = '📷 Выбрать фото';
+  addMsg(`«${label}» добавлена — она уже в сетке ниже. Связи можно уточнить в «Настроить сочетания».`);
   renderMainGrid();
 });
 
@@ -1054,7 +1270,15 @@ document.getElementById('cClose').addEventListener('click', () => {
   else hideCelebrate();
 });
 document.getElementById('cWishClose').addEventListener('click', hideCelebrate);
-document.getElementById('cReshuffle').addEventListener('click', () => { hideCelebrate(); reshuffle(); });
+document.getElementById('cReshuffle').addEventListener('click', () => {
+  // stay in the overlay: reshuffle underneath, then re-render the popup with the new outfit
+  reshuffle();
+  showCelebrate();
+  const card = document.querySelector('.c-card');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = '';
+});
 celebrateEl.addEventListener('click', e => { if (e.target === celebrateEl) hideCelebrate(); });
 
 // ===== Export rules =====
@@ -1074,9 +1298,11 @@ document.getElementById('btnCopyExport').addEventListener('click', () => {
   document.execCommand('copy');
 });
 document.getElementById('btnResetRules').addEventListener('click', () => {
-  if (confirm('Удалить все настроенные сочетания на этой странице? (Это не затрагивает сохранённую версию, пока ты не попросишь Claude обновить файл)')) {
-    ruleSet = new Set();
+  if (confirm('Вернуть стартовые сочетания? Твои ручные правки связей будут отменены (добавленные вещи останутся).')) {
+    ruleSet = new Set(baseRuleSet);
+    saveStore();
     selectedIds = [];
+    manualIds.clear();
     renderOutfitBar();
     renderMainGrid();
   }
