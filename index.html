@@ -124,57 +124,60 @@
   .filters button:hover { border-color: var(--ink); }
   .filters button.active { background: var(--ink); color: #fff; border-color: var(--ink); }
 
-  /* Workspace: sticky body-stack column + grid */
-  .workspace { display: flex; gap: 26px; align-items: flex-start; }
-  .grid-col { flex: 1; min-width: 0; }
-  .outfit-col {
+  /* Assembled outfit bar (horizontal, above the grid) */
+  .outfit-bar {
     display: none;
-    flex: none;
-    width: 276px;
-    position: sticky;
-    top: 16px;
     background: var(--card-bg);
     border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 18px 16px 14px;
+    border-radius: 16px;
+    padding: 16px 18px 14px;
+    margin-bottom: 26px;
   }
-  .outfit-col.visible { display: block; }
-  .oc-head { text-align: center; margin-bottom: 14px; }
-  .ob-title { font-size: 15px; font-weight: 600; }
-  .ob-sub { font-size: 12px; color: var(--ink-soft); margin-top: 3px; line-height: 1.35; }
-  .oc-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
-  .oc-actions button {
+  .outfit-bar.visible { display: block; }
+  .ob-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .ob-title { font-size: 14px; font-weight: 600; }
+  .ob-sub { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+  .ob-actions { display: flex; gap: 8px; }
+  .ob-actions button {
     font-family: inherit;
     font-size: 12.5px;
-    padding: 9px 14px;
+    padding: 7px 14px;
     border-radius: 10px;
     border: 1px solid var(--line);
     background: #fff;
     cursor: pointer;
     color: var(--ink);
-    width: 100%;
   }
-  .oc-actions button:hover { border-color: var(--ink); }
-
-  /* Body-like vertical stack */
-  .body-stack { display: flex; flex-direction: column; gap: 10px; align-items: center; }
-  .bs-row { display: flex; gap: 10px; justify-content: center; align-items: center; }
-  .ob-piece {
-    position: relative;
+  .ob-actions button:hover { border-color: var(--ink); }
+  .ob-pieces { display: flex; gap: 12px; flex-wrap: wrap; }
+  .ob-piece { width: 88px; text-align: center; position: relative; }
+  .ob-piece .thumb {
+    width: 88px;
+    height: 108px;
     background: #fff;
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 7px;
+    padding: 6px;
+    margin-bottom: 4px;
   }
-  .ob-piece img { max-width: 100%; max-height: 100%; object-fit: contain; }
-  .ob-piece.bs-top, .ob-piece.bs-low { width: 132px; height: 152px; }
-  .ob-piece.bs-dress { width: 140px; height: 200px; }
-  .ob-piece.bs-outer { width: 100px; height: 124px; }
-  .ob-piece.bs-acc { width: 96px; height: 74px; }
-  .ob-piece.bs-shoes { width: 132px; height: 88px; }
+  .ob-piece .thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .ob-piece .pcat {
+    font-size: 9.5px;
+    color: #b3b3b3;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .ob-piece .plabel { font-size: 10.5px; color: var(--ink-soft); line-height: 1.25; }
   .ob-piece .rm {
     position: absolute;
     top: -7px;
@@ -429,9 +432,11 @@
     border: 1px solid var(--line);
     border-radius: 24px;
     box-shadow: 0 30px 80px rgba(0,0,0,0.14);
-    padding: 40px 44px 32px;
-    max-width: 640px;
+    padding: 36px 40px 30px;
+    max-width: 560px;
     width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
     text-align: center;
     animation: cardPop 0.45s cubic-bezier(0.18, 1.25, 0.4, 1);
   }
@@ -441,29 +446,61 @@
   }
   .c-title { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; }
   .c-sub { margin-top: 8px; color: var(--ink-soft); font-size: 15.5px; font-style: italic; }
+  /* vertical body-like stack on the final screen */
   .c-preview {
     display: flex;
+    flex-direction: column;
     gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin: 22px 0 6px;
+    align-items: center;
+    margin: 20px 0 6px;
   }
-  .c-preview .cp {
-    width: 76px;
-    height: 96px;
+  .c-preview .bs-row { display: flex; gap: 10px; justify-content: center; align-items: center; }
+  .bs-item {
     background: #fff;
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 5px;
+    padding: 7px;
     animation: cpIn 0.5s ease backwards;
   }
-  .c-preview .cp img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .bs-item img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .bs-item.bs-top, .bs-item.bs-low { width: 128px; height: 148px; }
+  .bs-item.bs-dress { width: 136px; height: 196px; }
+  .bs-item.bs-outer { width: 98px; height: 120px; }
+  .bs-item.bs-acc { width: 92px; height: 70px; }
+  .bs-item.bs-shoes { width: 128px; height: 84px; }
   @keyframes cpIn {
     from { opacity: 0; transform: translateY(14px) scale(0.85); }
     to { opacity: 1; transform: none; }
+  }
+
+  /* wish screen (after «Кайф») */
+  .w-name {
+    font-family: 'MashaChancery', 'Snell Roundhand', cursive;
+    font-size: 56px;
+    line-height: 1.1;
+    margin-top: 6px;
+  }
+  .w-text {
+    margin: 14px auto 0;
+    font-size: 16.5px;
+    color: var(--ink-soft);
+    max-width: 400px;
+    line-height: 1.5;
+  }
+  .w-hearts { margin-top: 18px; display: flex; gap: 14px; justify-content: center; }
+  .w-hearts span {
+    display: inline-block;
+    font-size: 20px;
+    animation: heartFloat 1.8s ease-in-out infinite;
+  }
+  .w-hearts span:nth-child(2) { animation-delay: 0.3s; }
+  .w-hearts span:nth-child(3) { animation-delay: 0.6s; }
+  @keyframes heartFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-9px); }
   }
   .c-actions { display: flex; gap: 10px; justify-content: center; margin-top: 22px; }
   .c-actions button {
@@ -560,24 +597,23 @@
       <button class="btn-assemble" id="btnAssemble">✨ Собрать образ за меня</button>
     </div>
 
-    <div class="workspace">
-      <aside class="outfit-col" id="outfitBar">
-        <div class="oc-head">
+    <div class="outfit-bar" id="outfitBar">
+      <div class="ob-head">
+        <div>
           <div class="ob-title">Собранный образ</div>
           <div class="ob-sub" id="obSub"></div>
         </div>
-        <div class="body-stack" id="obPieces"></div>
-        <div class="oc-actions">
+        <div class="ob-actions">
           <button id="btnReshuffle">🎲 Пересобрать</button>
           <button id="btnClearSel">Сбросить образ</button>
         </div>
-      </aside>
-      <div class="grid-col">
-        <div class="picker-section">
-          <div class="picker-title" id="pickerTitle">Все вещи</div>
-          <div id="mainGrid"></div>
-        </div>
       </div>
+      <div class="ob-pieces" id="obPieces"></div>
+    </div>
+
+    <div class="picker-section">
+      <div class="picker-title" id="pickerTitle">Все вещи</div>
+      <div id="mainGrid"></div>
     </div>
 
     <div class="export-panel">
@@ -597,12 +633,22 @@
   <div class="celebrate" id="celebrate">
     <div class="c-confetti" id="cConfetti"></div>
     <div class="c-card">
-      <div class="c-title">Образ собран!</div>
-      <div class="c-sub" id="cPhrase"></div>
-      <div class="c-preview" id="cPreview"></div>
-      <div class="c-actions">
-        <button class="primary" id="cClose">Кайф</button>
-        <button id="cReshuffle">🎲 Пересобрать</button>
+      <div id="cMain">
+        <div class="c-title">Образ собран!</div>
+        <div class="c-sub" id="cPhrase"></div>
+        <div class="c-preview" id="cPreview"></div>
+        <div class="c-actions">
+          <button class="primary" id="cClose">Кайф</button>
+          <button id="cReshuffle">🎲 Пересобрать</button>
+        </div>
+      </div>
+      <div id="cWish" style="display:none">
+        <div class="w-name" id="wName"></div>
+        <div class="w-text" id="wText"></div>
+        <div class="w-hearts"><span>🤍</span><span>🖤</span><span>🤍</span></div>
+        <div class="c-actions">
+          <button class="primary" id="cWishClose">Спасибо 🤍</button>
+        </div>
       </div>
     </div>
   </div>
@@ -742,15 +788,51 @@ function showCelebrate() {
     return `<span style="left:${left}%;background:${color};transform:rotate(${rot}deg);animation-duration:${dur}s;animation-delay:${delay}s"></span>`;
   }).join('');
   document.getElementById('cPhrase').textContent = celebratePhrase();
-  const ordered = [];
-  CATEGORIES.forEach(c => selectedIds.forEach(id => {
-    if (itemsById[id].cat === c.id) ordered.push(itemsById[id]);
-  }));
-  document.getElementById('cPreview').innerHTML = ordered.map((it, i) =>
-    `<div class="cp" style="animation-delay:${0.1 + i * 0.08}s"><img src="data:image/jpeg;base64,${it.b64}" alt=""></div>`).join('');
+  // vertical body-like stack: (dress|top + outer) / (low + acc) / shoes
+  const byCat = {};
+  selectedIds.forEach(id => {
+    const it = itemsById[id];
+    (byCat[it.cat] = byCat[it.cat] || []).push(it);
+  });
+  let d = 0;
+  const piece = (it, cls) => `
+    <div class="bs-item ${cls}" style="animation-delay:${0.12 + (d++) * 0.12}s" title="${it.label}">
+      <img src="data:image/jpeg;base64,${it.b64}" alt="${it.label}">
+    </div>`;
+  const rows = [];
+  const row1 = [
+    ...(byCat.dress || []).map(it => piece(it, 'bs-dress')),
+    ...(byCat.top || []).map(it => piece(it, 'bs-top')),
+    ...(byCat.outer || []).map(it => piece(it, 'bs-outer')),
+  ];
+  if (row1.length) rows.push(row1);
+  const row2 = [
+    ...(byCat.low || []).map(it => piece(it, 'bs-low')),
+    ...(byCat.acc || []).map(it => piece(it, 'bs-acc')),
+  ];
+  if (row2.length) rows.push(row2);
+  if (byCat.shoes) rows.push(byCat.shoes.map(it => piece(it, 'bs-shoes')));
+  document.getElementById('cPreview').innerHTML =
+    rows.map(r => `<div class="bs-row">${r.join('')}</div>`).join('');
+  document.getElementById('cMain').style.display = '';
+  document.getElementById('cWish').style.display = 'none';
   celebrateEl.classList.add('visible');
 }
-function hideCelebrate() { celebrateEl.classList.remove('visible'); }
+function hideCelebrate() {
+  celebrateEl.classList.remove('visible');
+  document.getElementById('cMain').style.display = '';
+  document.getElementById('cWish').style.display = 'none';
+}
+
+// ===== Wish screen (after «Кайф») =====
+const WISH_NAMES = ["Машенька", "Машулечка", "Машунечка", "Машуся"];
+const WISHES = ["пусть день будет таким же прекрасным, как ты", "прекрасного дня и лёгкой походки", "пусть сегодня всё сложится само собой", "улыбнись — тебе очень идёт", "пусть день принесёт хорошие новости", "иди и покоряй этот день", "пусть комплименты сегодня не заканчиваются", "солнечного настроения, что бы ни было за окном", "пусть всё задуманное сегодня получится", "будь счастлива — сегодня и всегда", "этот день уже счастливчик: он проведёт его с тобой", "красивого дня красивому человеку"];
+function showWish() {
+  document.getElementById('wName').textContent = randOf(WISH_NAMES) + '!';
+  document.getElementById('wText').textContent = randOf(WISHES);
+  document.getElementById('cMain').style.display = 'none';
+  document.getElementById('cWish').style.display = '';
+}
 
 function checkCelebrate() {
   const complete = mode === 'browse' && isComplete(selectedIds);
@@ -860,31 +942,19 @@ function renderOutfitBar() {
     return;
   }
   outfitBarEl.classList.add('visible');
-  // body-like vertical stack: (dress|top + outer) / (low + acc) / shoes
-  const byCat = {};
-  selectedIds.forEach(id => {
-    const it = itemsById[id];
-    (byCat[it.cat] = byCat[it.cat] || []).push(it);
+  const ordered = [];
+  CATEGORIES.forEach(c => {
+    selectedIds.forEach(id => {
+      if (itemsById[id].cat === c.id) ordered.push(itemsById[id]);
+    });
   });
-  const piece = (it, cls) => `
-    <div class="ob-piece ${cls}" data-id="${it.id}" title="${it.label}">
+  obPiecesEl.innerHTML = ordered.map(it => `
+    <div class="ob-piece" data-id="${it.id}">
       <div class="rm" title="Убрать из образа">×</div>
-      <img src="data:image/jpeg;base64,${it.b64}" alt="${it.label}">
-    </div>`;
-  const rows = [];
-  const row1 = [
-    ...(byCat.dress || []).map(it => piece(it, 'bs-dress')),
-    ...(byCat.top || []).map(it => piece(it, 'bs-top')),
-    ...(byCat.outer || []).map(it => piece(it, 'bs-outer')),
-  ];
-  if (row1.length) rows.push(row1);
-  const row2 = [
-    ...(byCat.low || []).map(it => piece(it, 'bs-low')),
-    ...(byCat.acc || []).map(it => piece(it, 'bs-acc')),
-  ];
-  if (row2.length) rows.push(row2);
-  if (byCat.shoes) rows.push(byCat.shoes.map(it => piece(it, 'bs-shoes')));
-  obPiecesEl.innerHTML = rows.map(r => `<div class="bs-row">${r.join('')}</div>`).join('');
+      <div class="thumb"><img src="data:image/jpeg;base64,${it.b64}" alt="${it.label}"></div>
+      <div class="pcat">${catsById[it.cat].title}</div>
+      <div class="plabel">${it.label}</div>
+    </div>`).join('');
   const n = selectedIds.length;
   obSubEl.innerHTML = `Собрано с заботой · ${n} ${plural(n, 'вещь', 'вещи', 'вещей')} в образе · <em>${pickCompliment()}</em>`;
   obPiecesEl.querySelectorAll('.ob-piece .rm').forEach(rm => {
@@ -979,7 +1049,11 @@ document.getElementById('btnClearSel').addEventListener('click', () => {
 // ===== Assemble / reshuffle / celebrate wiring =====
 btnAssembleEl.addEventListener('click', runAssemble);
 document.getElementById('btnReshuffle').addEventListener('click', reshuffle);
-document.getElementById('cClose').addEventListener('click', hideCelebrate);
+document.getElementById('cClose').addEventListener('click', () => {
+  if (WISH_NAMES.length && WISHES.length) showWish();
+  else hideCelebrate();
+});
+document.getElementById('cWishClose').addEventListener('click', hideCelebrate);
 document.getElementById('cReshuffle').addEventListener('click', () => { hideCelebrate(); reshuffle(); });
 celebrateEl.addEventListener('click', e => { if (e.target === celebrateEl) hideCelebrate(); });
 
