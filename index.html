@@ -1205,7 +1205,7 @@ function addMsg(text, err) {
   addMsgEl.classList.toggle('err', !!err);
 }
 // --- background removal (in-browser ML, lazy-loaded from CDN) ---
-const BG_LIB_URL = 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/index.mjs';
+const BG_LIB_URL = 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm';
 let _bgLibPromise = null;
 let _photoBusy = false;
 function getBgLib() {
