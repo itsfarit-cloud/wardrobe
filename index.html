@@ -670,10 +670,11 @@
         </label>
         <input type="text" id="addLabel" placeholder="Название (например: красная юбка)" maxlength="60">
         <select id="addCat"></select>
+        <label class="mp-check"><input type="checkbox" id="addCutBg" checked> ✂️ вырезать фон</label>
         <label class="mp-check"><input type="checkbox" id="addLinkAll" checked> сразу сочетать со всем подходящим</label>
         <button id="btnAddItem">Добавить</button>
       </div>
-      <div class="mp-hint" id="addMsg">Фото лучше на белом фоне. Удаление — корзинка на карточке (нажать дважды). Всё сохраняется в этом браузере автоматически.</div>
+      <div class="mp-hint" id="addMsg">Фоткай вещь как удобно — фон вырежется сам (галочка ✂️). Удаление — корзинка на карточке (нажать дважды). Всё сохраняется в этом браузере автоматически.</div>
     </div>
 
     <div class="filters" id="catFilters"></div>
@@ -1203,12 +1204,38 @@ function addMsg(text, err) {
   addMsgEl.textContent = text;
   addMsgEl.classList.toggle('err', !!err);
 }
-document.getElementById('addPhoto').addEventListener('change', e => {
-  const f = e.target.files && e.target.files[0];
-  if (!f) return;
+// --- background removal (in-browser ML, lazy-loaded from CDN) ---
+const BG_LIB_URL = 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/index.mjs';
+let _bgLibPromise = null;
+let _photoBusy = false;
+function getBgLib() {
+  if (!_bgLibPromise) {
+    _bgLibPromise = import(BG_LIB_URL);
+    _bgLibPromise.catch(() => { _bgLibPromise = null; }); // allow retry after network failure
+  }
+  return _bgLibPromise;
+}
+function withTimeout(p, ms) {
+  return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('bg-removal timeout')), ms))]);
+}
+async function cutBackground(file, onProgress) {
+  const lib = await withTimeout(getBgLib(), 40000);
+  return await withTimeout(lib.removeBackground(file, {
+    model: 'isnet_quint8',
+    output: { format: 'image/png' },
+    progress: (key, cur, total) => {
+      if (!total || !onProgress) return;
+      const pct = Math.min(100, Math.round(cur / total * 100));
+      onProgress(key && key.indexOf('fetch') === 0 ? `Загружаю модель… ${pct}%` : `Вырезаю фон… ${pct}%`);
+    },
+  }), 180000);
+}
+function srcToCanvasB64(src, done) { // src: File | Blob → JPEG-on-white base64
   const rd = new FileReader();
+  rd.onerror = () => done(null);
   rd.onload = () => {
     const img = new Image();
+    img.onerror = () => done(null);
     img.onload = () => {
       const MAX = 600;
       const sc = Math.min(1, MAX / Math.max(img.width, img.height));
@@ -1219,17 +1246,51 @@ document.getElementById('addPhoto').addEventListener('change', e => {
       cx.fillStyle = '#fff';
       cx.fillRect(0, 0, cv.width, cv.height);
       cx.drawImage(img, 0, 0, cv.width, cv.height);
-      _addPhotoB64 = cv.toDataURL('image/jpeg', 0.82).split(',')[1];
-      document.getElementById('addPhotoLabel').textContent = '✓ ' + f.name;
-      addMsg(ADD_HINT);
+      done(cv.toDataURL('image/jpeg', 0.82).split(',')[1]);
     };
     img.src = rd.result;
   };
-  rd.readAsDataURL(f);
+  rd.readAsDataURL(src);
+}
+document.getElementById('addPhoto').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  e.target.value = ''; // allow re-selecting the same file later
+  const labelEl = document.getElementById('addPhotoLabel');
+  const wantCut = document.getElementById('addCutBg').checked;
+  _photoBusy = true;
+  _addPhotoB64 = null;
+  let src = f;
+  let cut = false;
+  if (wantCut) {
+    labelEl.textContent = '✂️ Вырезаю фон…';
+    addMsg('В первый раз скачается модель (~20 МБ) — до минуты. Дальше будет заметно быстрее.');
+    try {
+      src = await cutBackground(f, t => { labelEl.textContent = '✂️ ' + t; });
+      cut = true;
+    } catch (err) {
+      console.warn('[wardrobe] bg removal failed, using original photo', err);
+      src = f;
+    }
+  }
+  srcToCanvasB64(src, b64 => {
+    _photoBusy = false;
+    if (!b64) {
+      labelEl.textContent = '📷 Выбрать фото';
+      addMsg('Не получилось прочитать фото — попробуй другое.', true);
+      return;
+    }
+    _addPhotoB64 = b64;
+    labelEl.textContent = (cut ? '✂️✓ ' : '✓ ') + f.name;
+    if (cut) addMsg('Фон вырезан! Если результат не нравится — сними галочку ✂️ и выбери фото ещё раз.');
+    else if (wantCut) addMsg('Фон вырезать не получилось (нет сети до модели?) — оставила фото как есть.', true);
+    else addMsg(ADD_HINT);
+  });
 });
 document.getElementById('btnAddItem').addEventListener('click', () => {
   const label = document.getElementById('addLabel').value.trim();
   const cat = document.getElementById('addCat').value;
+  if (_photoBusy) { addMsg('Секунду — фото ещё обрабатывается…', true); return; }
   if (!_addPhotoB64) { addMsg('Сначала выбери фото вещи.', true); return; }
   if (!label) { addMsg('Дай вещи название.', true); return; }
   const it = {
